@@ -4,8 +4,10 @@ import { fetchTodos, addTodo, updateTodo, deleteTodo } from "../apis/todoApi";
 
 interface TodoStore {
   todos: Todo[];
-  filter: "all" | "active" | "completed"; // ✅ 필터 추가
+  filter: "all" | "active" | "completed";
+  sortOrder: "newest" | "oldest"; // ✅ 정렬 추가
   setFilter: (filter: "all" | "active" | "completed") => void;
+  setSortOrder: (order: "newest" | "oldest") => void; // ✅ 정렬 변경 함수 추가
   loadTodos: () => Promise<void>;
   createTodo: (title: string) => Promise<void>;
   toggleTodo: (id: string, completed: boolean) => Promise<void>;
@@ -15,9 +17,11 @@ interface TodoStore {
 
 export const useTodoStore = create<TodoStore>((set) => ({
   todos: [],
-  filter: "all", // ✅ 기본 필터는 "all"
+  filter: "all",
+  sortOrder: "newest", // ✅ 기본 정렬은 최신순
 
   setFilter: (filter) => set({ filter }),
+  setSortOrder: (order) => set({ sortOrder: order }), // ✅ 정렬 변경 로직 추가
 
   loadTodos: async () => {
     const todos = await fetchTodos();

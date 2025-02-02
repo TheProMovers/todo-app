@@ -6,6 +6,7 @@ const TodoList = () => {
   const { todos, toggleTodo, removeTodo, editTodo, filter, setFilter } = useTodoStore();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [sortOrder, setSortOrder] = useState<"oldest" | "newest">("oldest"); // ✅ 정렬 상태 추가
 
   const handleEdit = (id: string, title: string) => {
     setEditingId(id);
@@ -13,8 +14,10 @@ const TodoList = () => {
   };
 
   const handleSaveEdit = (id: string) => {
-    editTodo(id, editText);
-    setEditingId(null);
+    if (editText.trim() !== "") {
+      editTodo(id, editText);
+      setEditingId(null);
+    }
   };
 
   // ✅ 필터링된 할 일 목록
@@ -24,31 +27,48 @@ const TodoList = () => {
     return true;
   });
 
+  // ✅ 정렬된 할 일 목록
+  const sortedTodos = [...filteredTodos].sort((a, b) => {
+    if (sortOrder === "newest") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+
   return (
     <div className="mt-6 space-y-3">
-      {/* ✅ 필터 버튼 추가 */}
-      <div className="flex justify-center gap-2 mb-4">
+      {/* ✅ 필터 + 정렬 버튼 */}
+      <div className="flex justify-between mb-4">
+        {/* 필터 버튼 */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setFilter("all")}
+            className={`px-3 py-1 rounded ${filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          >
+            전체
+          </button>
+          <button
+            onClick={() => setFilter("active")}
+            className={`px-3 py-1 rounded ${filter === "active" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          >
+            진행 중
+          </button>
+          <button
+            onClick={() => setFilter("completed")}
+            className={`px-3 py-1 rounded ${filter === "completed" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          >
+            완료됨
+          </button>
+        </div>
+
+        {/* 정렬 버튼 */}
         <button
-          onClick={() => setFilter("all")}
-          className={`px-3 py-1 rounded ${filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setSortOrder(sortOrder === "oldest" ? "newest" : "oldest")}
+          className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400"
         >
-          전체
-        </button>
-        <button
-          onClick={() => setFilter("active")}
-          className={`px-3 py-1 rounded ${filter === "active" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-        >
-          진행 중
-        </button>
-        <button
-          onClick={() => setFilter("completed")}
-          className={`px-3 py-1 rounded ${filter === "completed" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-        >
-          완료됨
+          {sortOrder === "oldest" ? "최신순" : "오래된순"}
         </button>
       </div>
 
-      {filteredTodos.length === 0 ? (
+      {sortedTodos.length === 0 ? (
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -58,7 +78,7 @@ const TodoList = () => {
         </motion.p>
       ) : (
         <AnimatePresence>
-          {filteredTodos.map((todo) => (
+          {sortedTodos.map((todo) => (
             <motion.div
               key={todo._id}
               initial={{ opacity: 0, y: -10 }}
