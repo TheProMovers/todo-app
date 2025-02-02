@@ -4,6 +4,8 @@ import { fetchTodos, addTodo, updateTodo, deleteTodo } from "../apis/todoApi";
 
 interface TodoStore {
   todos: Todo[];
+  filter: "all" | "active" | "completed"; // ✅ 필터 추가
+  setFilter: (filter: "all" | "active" | "completed") => void;
   loadTodos: () => Promise<void>;
   createTodo: (title: string) => Promise<void>;
   toggleTodo: (id: string, completed: boolean) => Promise<void>;
@@ -13,6 +15,9 @@ interface TodoStore {
 
 export const useTodoStore = create<TodoStore>((set) => ({
   todos: [],
+  filter: "all", // ✅ 기본 필터는 "all"
+
+  setFilter: (filter) => set({ filter }),
 
   loadTodos: async () => {
     const todos = await fetchTodos();

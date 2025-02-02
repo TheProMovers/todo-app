@@ -3,7 +3,7 @@ import { useTodoStore } from "../stores/todoStore";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TodoList = () => {
-  const { todos, toggleTodo, removeTodo, editTodo } = useTodoStore();
+  const { todos, toggleTodo, removeTodo, editTodo, filter, setFilter } = useTodoStore();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
 
@@ -17,9 +17,38 @@ const TodoList = () => {
     setEditingId(null);
   };
 
+  // ✅ 필터링된 할 일 목록
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === "active") return !todo.completed;
+    if (filter === "completed") return todo.completed;
+    return true;
+  });
+
   return (
     <div className="mt-6 space-y-3">
-      {todos.length === 0 ? (
+      {/* ✅ 필터 버튼 추가 */}
+      <div className="flex justify-center gap-2 mb-4">
+        <button
+          onClick={() => setFilter("all")}
+          className={`px-3 py-1 rounded ${filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+        >
+          전체
+        </button>
+        <button
+          onClick={() => setFilter("active")}
+          className={`px-3 py-1 rounded ${filter === "active" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+        >
+          진행 중
+        </button>
+        <button
+          onClick={() => setFilter("completed")}
+          className={`px-3 py-1 rounded ${filter === "completed" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+        >
+          완료됨
+        </button>
+      </div>
+
+      {filteredTodos.length === 0 ? (
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -29,7 +58,7 @@ const TodoList = () => {
         </motion.p>
       ) : (
         <AnimatePresence>
-          {todos.map((todo) => (
+          {filteredTodos.map((todo) => (
             <motion.div
               key={todo._id}
               initial={{ opacity: 0, y: -10 }}
@@ -45,7 +74,6 @@ const TodoList = () => {
                 className="mr-3 w-5 h-5 accent-green-500"
               />
 
-              {/* ✅ 수정 중이면 입력창, 아니면 텍스트 표시 */}
               {editingId === todo._id ? (
                 <input
                   type="text"
@@ -59,7 +87,6 @@ const TodoList = () => {
                 </span>
               )}
 
-              {/* ✅ 수정 버튼 / 저장 버튼 */}
               {editingId === todo._id ? (
                 <motion.button
                   onClick={() => handleSaveEdit(todo._id)}
@@ -76,7 +103,6 @@ const TodoList = () => {
                 </motion.button>
               )}
 
-              {/* 삭제 버튼 */}
               <motion.button
                 onClick={() => removeTodo(todo._id)}
                 className="px-3 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600 transition"
