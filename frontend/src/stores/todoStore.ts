@@ -9,10 +9,10 @@ interface TodoStore {
   setFilter: (filter: "all" | "active" | "completed") => void;
   setSortOrder: (order: "newest" | "oldest") => void; // ✅ 정렬 변경 함수 추가
   loadTodos: () => Promise<void>;
-  createTodo: (title: string) => Promise<void>;
+  createTodo: (title: string, image?: File) => Promise<void>;
   toggleTodo: (id: string, completed: boolean) => Promise<void>;
   removeTodo: (id: string) => Promise<void>;
-  editTodo: (id: string, title: string) => Promise<void>;
+  editTodo: (id: string, title: string, image?: File) => Promise<void>;
 }
 
 export const useTodoStore = create<TodoStore>((set) => ({
@@ -28,8 +28,8 @@ export const useTodoStore = create<TodoStore>((set) => ({
     set({ todos });
   },
 
-  createTodo: async (title) => {
-    const newTodo = await addTodo(title);
+  createTodo: async (title, image) => {
+    const newTodo = await addTodo(title, image);
     set((state) => ({ todos: [...state.todos, newTodo] }));
   },
 
@@ -45,8 +45,8 @@ export const useTodoStore = create<TodoStore>((set) => ({
     set((state) => ({ todos: state.todos.filter((todo) => todo._id !== id) }));
   },
 
-  editTodo: async (id, title) => {
-    const updatedTodo = await updateTodo(id, { title });
+  editTodo: async (id, title, image) => {
+    const updatedTodo = await updateTodo(id, { title }, image);
     set((state) => ({
       todos: state.todos.map((todo) => (todo._id === id ? updatedTodo : todo)),
     }));

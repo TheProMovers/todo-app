@@ -11,22 +11,20 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: "autoUpdate",
-        includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg", "pwa-192x192.png", "pwa-512x512.png"],
+        includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
         manifest: {
           name: "Todo App",
           short_name: "Todo",
-          description: "오프라인에서도 사용 가능한 Todo 리스트",
+          description: "Todo App with PWA support",
           theme_color: "#ffffff",
-          background_color: "#ffffff",
-          display: "standalone",
           icons: [
             {
-              src: "/pwa-192x192.png",
+              src: "pwa-192x192.png",
               sizes: "192x192",
               type: "image/png",
             },
             {
-              src: "/pwa-512x512.png",
+              src: "pwa-512x512.png",
               sizes: "512x512",
               type: "image/png",
             },

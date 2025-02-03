@@ -25,7 +25,8 @@ const getTodoById = async (req, res) => {
 const createTodo = async (req, res) => {
   try {
     const { title } = req.body;
-    const newTodo = new Todo({ title });
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const newTodo = new Todo({ title, imageUrl });
     await newTodo.save();
     res.status(201).json(newTodo);
   } catch (error) {
@@ -36,9 +37,13 @@ const createTodo = async (req, res) => {
 // 4️⃣ 할 일 수정
 const updateTodo = async (req, res) => {
   try {
+    const updateData = { ...req.body };
+    if (req.file) {
+      updateData.imageUrl = `/uploads/${req.file.filename}`;
+    }
     const updatedTodo = await Todo.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true }
     );
     if (!updatedTodo) return res.status(404).json({ message: "할 일을 찾을 수 없음" });

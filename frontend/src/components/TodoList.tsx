@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTodoStore } from "../stores/todoStore";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -6,17 +6,39 @@ const TodoList = () => {
   const { todos, toggleTodo, removeTodo, editTodo, filter, setFilter } = useTodoStore();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [editImage, setEditImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [sortOrder, setSortOrder] = useState<"oldest" | "newest">("oldest"); // ✅ 정렬 상태 추가
 
   const handleEdit = (id: string, title: string) => {
     setEditingId(id);
     setEditText(title);
+    setEditImage(null);
+    setPreviewUrl(null);
   };
 
-  const handleSaveEdit = (id: string) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveEdit = async (id: string) => {
     if (editText.trim() !== "") {
-      editTodo(id, editText);
+      await editTodo(id, editText, editImage || undefined);
       setEditingId(null);
+      setEditImage(null);
+      setPreviewUrl(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -94,18 +116,81 @@ const TodoList = () => {
                 className="mr-3 w-5 h-5 accent-green-500"
               />
 
-              {editingId === todo._id ? (
-                <input
-                  type="text"
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  className="px-2 py-1 border rounded w-full"
-                />
-              ) : (
-                <span className={todo.completed ? "line-through text-gray-500" : "text-gray-900"}>
-                  {todo.title}
-                </span>
-              )}
+              <div className="flex-1">
+                {editingId === todo._id ? (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className="px-2 py-1 border rounded w-full"
+                    />
+                    <div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        ref={fileInputRef}
+                        className="hidden"
+                        id={`edit-image-${todo._id}`}
+                      />
+                      <label
+                        htmlFor={`edit-image-${todo._id}`}
+                        className="inline-block px-3 py-1 text-sm bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 
+                                 rounded cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-500 transition"
+                      >
+                        이미지 변경
+                      </label>
+                      {previewUrl ? (
+                        <div className="relative w-32 h-32 mt-2">
+                          <img
+                            src={previewUrl}
+                            alt="미리보기"
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditImage(null);
+                              setPreviewUrl(null);
+                              if (fileInputRef.current) {
+                                fileInputRef.current.value = "";
+                              }
+                            }}
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full 
+                                     flex items-center justify-center hover:bg-red-600"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : todo.imageUrl && (
+                        <div className="mt-2">
+                          <img
+                            src={`${import.meta.env.VITE_API_URL}${todo.imageUrl}`}
+                            alt="현재 이미지"
+                            className="w-32 h-32 object-cover rounded-lg"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <span className={todo.completed ? "line-through text-gray-500" : "text-gray-900"}>
+                      {todo.title}
+                    </span>
+                    {todo.imageUrl && (
+                      <div className="mt-2">
+                        <img
+                          src={`${import.meta.env.VITE_API_URL}${todo.imageUrl}`}
+                          alt="할 일 이미지"
+                          className="w-32 h-32 object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {editingId === todo._id ? (
                 <motion.button

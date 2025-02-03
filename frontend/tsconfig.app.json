@@ -22,7 +22,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
-    "types": ["vite-plugin-pwa/client"],
+    "types": ["vite-plugin-pwa"],
   },
   "include": ["src"]
 }

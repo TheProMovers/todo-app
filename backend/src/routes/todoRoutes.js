@@ -1,4 +1,5 @@
 const express = require("express");
+const upload = require("../middleware/upload");
 const {
   getTodos,
   getTodoById,
@@ -11,8 +12,8 @@ const router = express.Router();
 
 router.get("/", getTodos);
 router.get("/:id", getTodoById);
-router.post("/", createTodo);
-router.put("/:id", updateTodo);
+router.post("/", upload.single("image"), createTodo);
+router.put("/:id", upload.single("image"), updateTodo);
 router.delete("/:id", deleteTodo);
 
 module.exports = router;
