@@ -166,7 +166,7 @@ const TodoList = () => {
                       ) : todo.imageUrl && (
                         <div className="mt-2">
                           <img
-                            src={`${import.meta.env.VITE_API_URL}${todo.imageUrl}`}
+                            src={`${import.meta.env.VITE_API_URL.replace('/api', '')}${todo.imageUrl}`}
                             alt="현재 이미지"
                             className="w-32 h-32 object-cover rounded-lg"
                           />
@@ -182,7 +182,7 @@ const TodoList = () => {
                     {todo.imageUrl && (
                       <div className="mt-2">
                         <img
-                          src={`${import.meta.env.VITE_API_URL}${todo.imageUrl}`}
+                          src={`${import.meta.env.VITE_API_URL.replace('/api', '')}${todo.imageUrl}`}
                           alt="할 일 이미지"
                           className="w-32 h-32 object-cover rounded-lg"
                         />

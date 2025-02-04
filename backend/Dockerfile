@@ -4,9 +4,12 @@ FROM node:18
 # 작업 디렉토리 설정
 WORKDIR /app
 
+# nodemon 글로벌 설치
+RUN npm install -g nodemon
+
 # 패키지 매니저 파일 복사 및 패키지 설치
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm install --production=false
 
 # 앱 코드 복사
 COPY . .

@@ -18,7 +18,7 @@ if (!require("fs").existsSync(uploadsDir)) {
 }
 
 // 정적 파일 제공 설정
-app.use("/uploads", express.static(uploadsDir));
+app.use("/api/uploads", express.static(uploadsDir));
 
 app.get("/", (req, res) => {
   res.send("Todo API is running...");

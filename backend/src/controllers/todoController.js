@@ -25,7 +25,7 @@ const getTodoById = async (req, res) => {
 const createTodo = async (req, res) => {
   try {
     const { title } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? `/api/uploads/${req.file.filename}` : null;
     const newTodo = new Todo({ title, imageUrl });
     await newTodo.save();
     res.status(201).json(newTodo);
@@ -39,7 +39,7 @@ const updateTodo = async (req, res) => {
   try {
     const updateData = { ...req.body };
     if (req.file) {
-      updateData.imageUrl = `/uploads/${req.file.filename}`;
+      updateData.imageUrl = `/api/uploads/${req.file.filename}`;
     }
     const updatedTodo = await Todo.findByIdAndUpdate(
       req.params.id,
